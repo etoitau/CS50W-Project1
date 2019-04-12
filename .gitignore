@@ -1,13 +1,14 @@
 # notes to self
 notes.md
 
-# Django #
+# Django/Flask #
 *.log
 *.pot
 *.pyc
 __pycache__
 db.sqlite3
 media
+flask_session/
 
 # Backup files # 
 *.bak 
