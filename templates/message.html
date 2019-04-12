@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    {{ title OR 'Message' }}
+{% endblock %}
+
+{% block content %}
+    {# if an error message, print as such #}
+    {% if code != 200 %}<h3>{{ code }} {{ title }}</h3>
+    {# else if not error but title was specified, print that #}
+    {% elif title != 'attention' %}<h3>{{ title }}</h3>
+    {% endif %}
+    {# print message in any case #}
+    <p>{{ message }}</p>
+    
+{% endblock %}

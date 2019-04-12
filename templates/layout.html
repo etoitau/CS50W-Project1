@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+    <head>
+
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link href="{{ url_for('static', filename='favicon.ico') }}" rel="icon">
+
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+        <link type="text/css"  href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet">
+
+        <title>{% block title %}{% endblock %}</title>
+
+    </head>
+
+    <body>
+
+        <div class="navi">
+            <table>
+                <tr>
+                    <td class="title min"><a href="{{ url_for('index') }}" class="nostyle">Etoitau Libaray</a></td>
+                    <td><a href="{{ url_for('index') }}" class="nostyle">Search</a></td>
+                    <td>&nbsp;</td>
+                    {% if session.user_id %}
+                        <td class="right"><a href="{{ url_for('logout') }}" class="nostyle">Logout</a></td>
+                    {% else %}
+                        <td class="right min"><a href="{{ url_for('register') }}" class="nostyle">Register</a></td>
+                        <td class="right min"><a href="{{ url_for('login') }}" class="nostyle">Login</a></td>
+                    {% endif %}
+                </tr>
+            </table>
+        </div>
+        <div class="main">
+            <div class="textbg">{{ bgtext }}</div>
+            <div class="contentbox">
+                {% block content %}{% endblock %}
+            </div>
+                
+        </div>
+        
+        
+    </body>
+
+</html>
