@@ -25,7 +25,7 @@
                     <td><a href="{{ url_for('index') }}" class="nostyle">Search</a></td>
                     <td>&nbsp;</td>
                     {% if session.user_id %}
-                        <td class="right"><a href="{{ url_for('logout') }}" class="nostyle">Logout</a></td>
+                        <td class="right min"><a href="{{ url_for('logout') }}" class="nostyle">Logout</a></td>
                     {% else %}
                         <td class="right min"><a href="{{ url_for('register') }}" class="nostyle">Register</a></td>
                         <td class="right min"><a href="{{ url_for('login') }}" class="nostyle">Login</a></td>

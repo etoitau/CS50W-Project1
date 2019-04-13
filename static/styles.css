@@ -4,6 +4,7 @@ body {
     margin: 0;
     font-family: "Courier New", "Courier", monospace;
     color: #202020;
+    height: 100%;
 }
 
 .navi {
@@ -44,6 +45,24 @@ table .min {
     white-space: nowrap;
 }
 
+table.searchtable {
+    border-collapse: collapse;
+    margin: 0;
+    padding: 0;
+}
+
+.searchtable th {
+    font-weight: 600;
+    border-width: 1px;
+    border-style: none none solid none;
+}
+
+.searchtable td {
+    border-width: 1px;
+    border-style: solid;
+    border-color: #cccccc;
+}
+
 .main {
     padding: 0;
     margin: 0;
@@ -60,7 +79,7 @@ table .min {
 .textbg {
     padding: 5px;
     margin: 0;
-    position: absolute;
+    position: fixed;
     top: 30px;
     left: 0;
     bottom: 0;
@@ -72,15 +91,7 @@ table .min {
     font-size: 2vh;
 }
 
-form {
-    font-size: inherit;
-}
-
-input {
-    font-size: inherit;
-}
-
-button {
+form, input, select, button {
     font-size: inherit;
 }
 

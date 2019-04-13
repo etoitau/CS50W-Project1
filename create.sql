@@ -1,13 +1,11 @@
 /* Create tables by running this file:
 heroku pg:psql --app etoitau-library < create.sql */
 
-/* note using werkzeug.security generate_password_hash
-output of which is 64 characters long. 
-Also username input field is limited in html to 16 char */
+/* note username input field is limited in html to 16 char */
 CREATE TABLE card (
     user_id SERIAL PRIMARY KEY,
     username CHAR(16) NOT NULL UNIQUE,
-    pass_hash CHAR(64) NOT NULL
+    pass_hash CHAR(128) NOT NULL
 );
 
 /* not ISBN numbers used to be 10 digits, now 13, let's say 16 
