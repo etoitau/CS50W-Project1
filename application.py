@@ -1,5 +1,6 @@
 import os
 import logging
+import requests
 
 from flask import Flask, session, render_template, request, redirect, jsonify
 from flask.logging import create_logger
@@ -28,7 +29,7 @@ db = scoped_session(sessionmaker(bind=engine))
 
 # Set up logging
 log = create_logger(app)
-log.setLevel(logging.INFO)
+log.setLevel(logging.DEBUG)
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -47,6 +48,7 @@ def index():
         term = "%" + search_string + "%"
         log.info(f"select field: %s", select_field)
         log.info(f"search term: %s", term)
+        log.info(f"select field valid?: %r", select_field in {"isbn", "author", "title", "pub_year"})
         if select_field not in {"isbn", "author", "title", "pub_year"}:
             return message("something wrong with search field", "Error", 400)
         if select_field != "pub_year":
@@ -61,6 +63,28 @@ def index():
     else:
         log.info("index as GET")
         return render_template("index.html", bgtext=loadbabel())
+
+@app.route("/book/<int:book_id>")
+def book(book_id):  
+    log.info(f"book route with id: %i", book_id)  
+    if not book_id:
+        return message("no book specified", "Error", 400)
+    result = db.execute("SELECT * FROM book WHERE book_id = :book_id", {"book_id": book_id}).fetchone()
+    log.debug("database got result:")
+    log.debug(result)
+    log.debug("send to api Key: %s", os.environ['GRKEY'])
+    log.debug("send to api isbn: %s", result.isbn.strip())
+    try:
+        res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": os.environ['GRKEY'], "isbns": result.isbn.strip()})
+        log.debug("api got:")
+        log.debug(res.json())
+        gr_num = res.json()["books"][0]["work_ratings_count"]
+        gr_avg = res.json()["books"][0]["average_rating"]
+        log.debug("average rating: %s\nnumber of ratings %i", gr_avg, gr_num)
+    except:
+        res = 0
+    return render_template("book.html", book=result, gr_num=gr_num, gr_avg=gr_avg, bgtext=loadbabel())
+
 
 
 @app.route("/login", methods=["GET", "POST"])

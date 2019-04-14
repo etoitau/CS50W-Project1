@@ -5,6 +5,7 @@
 {% endblock %}
 
 {% block content %}
+<div class="content">
     {# if an error message, print as such #}
     {% if code != 200 %}<h3>{{ code }} {{ title }}</h3>
     {# else if not error but title was specified, print that #}
@@ -12,5 +13,5 @@
     {% endif %}
     {# print message in any case #}
     <p>{{ message }}</p>
-    
+</div>
 {% endblock %}

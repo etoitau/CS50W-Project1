@@ -1,12 +1,25 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Etoitau Libray
+    Etoitau Libray - {{ book.title }}
 {% endblock %}
 
 {% block content %}
 <div class="content">
-    <h3>Search</h3>
+    <h3>Book Info</h3>
+    <table>
+        {% for field, value in [('Title', book.title), ('Author', book.author), ('Year', book.pub_year), ('ISBN', book.isbn)] %}
+            <tr><td>{{ field }}: </td><td>{{ value }}</td></tr>
+        {% endfor %}
+    </table><br>
+    <h3>Goodreads Info</h3>
+    <table class="infotable">
+        <tr><td>Average Rating</td><td>Number of Ratings</td></tr>
+        <tr><td>{{ gr_avg }}</td><td>{{ gr_num }}</td></tr>
+    </table><br>
+    <h3>Reviews</h3>
+    coming soon
+    <!--
     <form action="{{ url_for('index') }}" method="post">
         <select name="select_field" required>
             {% if not select_field %}
@@ -30,8 +43,8 @@
     <br>
     {% if select_field %}
         <h3>Results</h3>
-        {% if search_results|length %}
-            <table class="infotable">
+        {% if results|length %}
+            <table class="searchtable">
                 <thead>
                     <tr>
                         <th>Author</th><th>Title</th><th>Year</th><th>ISBN</th>
@@ -40,10 +53,7 @@
                 <tbody>
                     {% for result in search_results %}
                         <tr>
-                            <td><a class="nostyle" href="{{ url_for('book', book_id=result.book_id) }}">{{ result.author }}</a></td>
-                            <td><a class="nostyle" href="{{ url_for('book', book_id=result.book_id) }}">{{ result.title }}</a></td>
-                            <td><a class="nostyle" href="{{ url_for('book', book_id=result.book_id) }}">{{ result.pub_year }}</a></td>
-                            <td><a class="nostyle" href="{{ url_for('book', book_id=result.book_id) }}">{{ result.isbn }}</a></td>
+                            <td>{{ result.author }}</td><td>{{ result.title }}</td><td>{{ result.pub_year }}</td><td>{{ result.isbn }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -52,5 +62,6 @@
             No results found
         {% endif %}     
     {% endif %}
+    -->
 </div>
 {% endblock %}
