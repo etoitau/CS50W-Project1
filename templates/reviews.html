@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Etoitau Libray - {{ username }} Reviews
+{% endblock %}
+
+{% block content %}
+<div class="content">
+    <h3>Book Reviews by {{ username }}</h3>
+    {% if book_revs %}
+        <table class="infotable">
+            <thead>
+                <tr>
+                    <th>Author</th><th>Title</th><th>Rating</th><th>Review</th>
+                </tr>
+            </thead>    
+            <tbody>
+                {% for rev in book_revs %}
+                    <tr>
+                        <td><a class="nostyle" href="{{ url_for('book', book_id=rev.book_id) }}">{{ rev.author }}</a></td>
+                        <td><a class="nostyle" href="{{ url_for('book', book_id=rev.book_id) }}">{{ rev.title }}</a></td>
+                        <td>{{ rev.rating }}</td><td>{{ rev.review }}</td>
+                    </tr>
+                {% endfor %}                    
+            </tbody>
+        </table>
+    {% else %}
+        No reviews found<br>
+    {% endif %}
+</div>
+{% endblock %}

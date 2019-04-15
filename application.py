@@ -29,7 +29,7 @@ db = scoped_session(sessionmaker(bind=engine))
 
 # Set up logging
 log = create_logger(app)
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.INFO)
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -64,7 +64,8 @@ def index():
         log.info("index as GET")
         return render_template("index.html", bgtext=loadbabel())
 
-@app.route("/book/<int:book_id>")
+@app.route("/book/<int:book_id>", methods=["GET"])
+@login_required
 def book(book_id):  
     log.info(f"book route with id: %i", book_id)  
     if not book_id:
@@ -82,9 +83,21 @@ def book(book_id):
         gr_avg = res.json()["books"][0]["average_rating"]
         log.debug("average rating: %s\nnumber of ratings %i", gr_avg, gr_num)
     except:
-        res = 0
-    return render_template("book.html", book=result, gr_num=gr_num, gr_avg=gr_avg, bgtext=loadbabel())
-
+        gr_num = 0
+    user_id = session.get("user_id") 
+    username, = db.execute("SELECT username FROM card WHERE user_id = :user_id", {"user_id": user_id}).fetchone()
+    log.debug("database got username:")
+    log.debug(username)
+    user_rev = db.execute("SELECT * FROM review WHERE user_id = :user_id AND book_id = :book_id", {"user_id": user_id, "book_id": book_id}).fetchone()
+    log.debug("database got user review for this book:")
+    log.debug(user_rev)
+    book_revs = db.execute("SELECT username, rating, review FROM review JOIN card ON card.user_id = review.user_id WHERE book_id = :book_id AND username != :username", 
+                            {"username": username, "book_id": book_id}).fetchall()
+    log.debug("database got reviews from other users for this book:")
+    log.debug(book_revs)
+    if not book_revs:
+        book_revs = 0
+    return render_template("book.html", book=result, gr_num=gr_num, gr_avg=gr_avg, username=username, user_rev=user_rev, book_revs=book_revs, bgtext=loadbabel())
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -109,10 +122,13 @@ def login():
             return message("couldn't get user", "Error", 500)
         # Ensure username exists and password is correct
         log.info(f"len(rows): %i", len(rows))
-        log.info(f"pass_hash: %s", rows[0].pass_hash)
-        log.info(f"check_password_hash: %r", check_password_hash(rows[0].pass_hash.strip(), request.form.get("password")))
-        if len(rows) != 1 or not check_password_hash(rows[0].pass_hash.strip(), request.form.get("password")):
-            return message("invalid username and/or password", "Error", 400)
+        if len(rows):
+            log.info(f"pass_hash: %s", rows[0].pass_hash)
+            log.info(f"check_password_hash: %r", check_password_hash(rows[0].pass_hash.strip(), request.form.get("password")))
+        if len(rows) != 1:
+            return message("invalid username", "Error", 400)
+        if not check_password_hash(rows[0].pass_hash.strip(), request.form.get("password")):
+            return message("invalid password", "Error", 400)
         # Remember which user has logged in
         session["user_id"] = rows[0].user_id
         # Redirect user to home page
@@ -182,3 +198,37 @@ def register():
     # upon coming to register
     else:
         return render_template("register.html", bgtext=loadbabel())
+
+
+@app.route("/reviews", methods=["GET", "POST"])
+@login_required
+def reviews():
+    user_id = session.get("user_id")
+    if request.method == "POST":
+        log.info("reviews as POST")
+        # get form input
+        book_id = request.form.get("book_id")
+        rating = request.form.get("rating")
+        review = request.form.get("review")
+        log.debug("user with id: %i submitted: \nbook_id: %i\nrating: %i\nreview: %s", user_id, book_id, rating, review)
+        # add to database
+        try:
+            db.execute('INSERT INTO "review" ("user_id","book_id","rating","review") VALUES (:user_id, :book_id, :rating, :review)',
+                        {"user_id":user_id, "book_id":book_id, "rating":rating, "review":review})
+            db.commit()
+        except:
+            return message("couldn't add review to database", "Error", 500)
+        # Redirect user to reviews page as GET
+        return redirect("/reviews")
+    else:
+        log.info("reviews as GET")
+        username, = db.execute("SELECT username FROM card WHERE user_id = :user_id", {"user_id": user_id}).fetchone()
+        log.debug("database got username: %s", username)
+        book_revs = db.execute("SELECT review.book_id, title, author, rating, review FROM review JOIN book ON review.book_id = book.book_id WHERE user_id = :user_id", 
+                            {"user_id":user_id}).fetchall()
+        log.debug("database got user reviews:")
+        log.debug(book_revs)
+        return render_template("reviews.html", username=username, book_revs=book_revs, bgtext=loadbabel())
+
+        
+        
